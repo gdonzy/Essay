@@ -103,15 +103,6 @@ public class BST<Key extends Comparable<Key>,Value>{
 		}
 	}
 
-	public Key ceiling(Key key){
-		Node ret = ceiling(root,key);
-		if(ret == null) return null;
-		return ret.key;
-	}
-
-	private Node ceiling(Node x,Key key){
-			
-	}
 
 	public Key select(int index) {
 		Node ret = select(root,index);
@@ -174,9 +165,7 @@ public class BST<Key extends Comparable<Key>,Value>{
 		x.N = size(x.left) + size(x.right) + 1;
 		return x;
 	}
-
-	public Iterator<Key> keys(){
-		return null;	
-	}
-
+	
 }
+
+

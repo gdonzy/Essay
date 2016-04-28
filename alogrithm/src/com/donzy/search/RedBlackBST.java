@@ -1,4 +1,4 @@
-package com.donzy.search
+package com.donzy.search;
 
 public class RedBlackBST<Key extends Comparable<Key>,Value >{
 	private Node root;
@@ -23,7 +23,33 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 		if(x == null) return false;	
 		return x.color == true;
 	}
+
+	public boolean isEmpty(){
+		return isEmpty(root);
+	}
 	
+	private boolean isEmpty(Node h){
+		return h == null;
+	}
+
+	public int size(){
+		return size(root);	
+	}
+
+	private int size(Node x){
+		if(x == null){ return 0;}	
+		else return x.N;
+	}
+	
+	public Key min(){
+		return min(root).key;	
+	}
+
+	private Node min(Node x){
+		if (x.left == null) return x;	
+		return min(x.left);
+	}
+
 	private Node rotateLeft(Node h){
 		Node x = h.right;
 		h.right = x.left;	
@@ -46,16 +72,34 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 		return x;
 	}
 	
-	private void flipColors(Node h){
+	private Node flipColors(Node h){
 		h.color = !h.color;
 		h.left.color = !h.left.color;
 		h.right.color = !h.right.color;
 
 		return h;
 	}
+	
+	public Value get(Key key){
+		return get(root,key);	
+	}
+
+	private Value get(Node x,Key key){
+		if(x == null) {return null;}				
+		int cmp = key.compareTo(x.key);
+		if(cmp > 0) {
+			return get(x.right,key);
+		}
+		else if(cmp < 0){
+			return get(x.left,key);	
+		}
+		else{
+			return x.val;
+		}
+	}
 
 	public void put(Key key,Value val){
-		root = put(root,Key key,Value val);
+		root = put(root,key,val);
 		root.color = BLACK;
 	}
 
@@ -66,27 +110,27 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 		else if(cmp < 0) h.left = put(h.left,key,val);
 		else h.val = val;
 		
-		if(isRed(h.right) && !isRed(h.left)) rotateLeft(Node h);
-		if(isRed(h.left) && isRed(h.left.left)) rotateRight(Node h);
-		if(isRed(h.left) && isRed(h.right)) flipColors(Node h);
+		if(isRed(h.right) && !isRed(h.left)) rotateLeft(h);
+		if(isRed(h.left) && isRed(h.left.left)) rotateRight(h);
+		if(isRed(h.left) && isRed(h.right)) flipColors(h);
 
 		h.N = size(h.left) + size(h.right) + 1;
 		return h;
 	}
 
-	private balance(Node h){
+	private Node balance(Node h){
 		if(isRed(h.right)) h = rotateLeft(h);  
 
-		if(isRed(h.right) && !isRed(h.left)) rotateLeft(Node h);
-		if(isRed(h.left) && isRed(h.left.left)) rotateRight(Node h);
-		if(isRed(h.left) && isRed(h.right)) flipColors(Node h);
+		if(isRed(h.right) && !isRed(h.left)) rotateLeft(h);
+		if(isRed(h.left) && isRed(h.left.left)) rotateRight(h);
+		if(isRed(h.left) && isRed(h.right)) flipColors(h);
 
 		h.N = size(h.left) + size(h.right) + 1;
 		return h;
 	}
 
 	private Node moveRedLeft(Node h){
-		//假设节点h为红色，h.left和h.left.left都是黑色。
+		//鍋囪鑺傜偣h涓虹孩鑹诧紝h.left鍜宧.left.left閮芥槸榛戣壊銆�
 		flipColors(h);	
 		if(isRed(h.right.left)){
 			h.right = rotateRight(h.right);
@@ -96,12 +140,12 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 	}
 
 	private Node moveRedRight(Node h){
-		//假设节点h为红色，h.right和h.right.left都是黑色
+		//鍋囪鑺傜偣h涓虹孩鑹诧紝h.right鍜宧.right.left閮芥槸榛戣壊
 		flipColors(h);	
 		if(!isRed(h.left.left)){
-			h = deleteMax(h);
-		return h;
+			h = rotateRight(h);
 		}
+		return h;
 	}
 
 	public void deleteMin(){
@@ -116,14 +160,14 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 		if(h.left == null){
 			return null;
 		}
-		if(!isRed(h.left) && (!isRed(h.left.left)){
+		if(!isRed(h.left) && !isRed(h.left.left)){
 			h = moveRedLeft(h);
 		}
 		h.left = deleteMin(h.left);
 		return balance(h);
 	}
 
-	public deleteMax(){
+	public void deleteMax(){
 		if(!isRed(root.left) && !isRed(root.right)){
 			root.color = RED;
 		}
@@ -141,7 +185,7 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 			return null;
 		}
 		if(!isRed(h.right) && !isRed(h.right.left)){
-			h = moveRedRigth(h);
+			h = moveRedRight(h);
 		}
 		h.right = deleteMax(h.right);
 		return balance(h);
@@ -152,7 +196,7 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 			root.color = RED;	
 		}
 		root = delete(root,key);
-		if(!isEmpty()){ return root.color = BLACK;}
+		if(!isEmpty()){ root.color = BLACK;}
 	}
 
 	private Node delete(Node h,Key key){
@@ -165,7 +209,7 @@ public class RedBlackBST<Key extends Comparable<Key>,Value >{
 		else{
 			if(isRed(h.left))
 				h = rotateRight(h);
-			if(key.compareTo(h.key) == 0 && (h.right == null) )
+			if(key.compareTo(h.key) == 0 && (h.right == null))
 				return null;
 			if(!isRed(h.right) && !isRed(h.right.left))
 				h = moveRedRight(h);
